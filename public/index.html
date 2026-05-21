@@ -15,134 +15,171 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 4rem;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
+    header { text-align: center; margin-bottom: 2.5rem; }
     header h1 {
-      font-size: 2rem;
-      font-weight: 700;
+      font-size: 2rem; font-weight: 700;
       background: linear-gradient(135deg, #7c6af7, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     header p { color: #888; margin-top: .4rem; font-size: .95rem; }
 
     .card {
-      background: #18181f;
-      border: 1px solid #2a2a36;
-      border-radius: 12px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 680px;
+      background: #18181f; border: 1px solid #2a2a36;
+      border-radius: 12px; padding: 2rem;
+      width: 100%; max-width: 720px;
     }
 
     label { display: block; font-size: .85rem; color: #aaa; margin-bottom: .35rem; }
 
     input[type="text"], input[type="url"] {
-      width: 100%;
-      background: #0f0f13;
-      border: 1px solid #2a2a36;
-      border-radius: 8px;
-      color: #e2e2e8;
-      padding: .65rem .9rem;
-      font-size: .95rem;
-      outline: none;
-      transition: border-color .2s;
-      margin-bottom: 1.25rem;
+      width: 100%; background: #0f0f13;
+      border: 1px solid #2a2a36; border-radius: 8px;
+      color: #e2e2e8; padding: .65rem .9rem;
+      font-size: .95rem; outline: none;
+      transition: border-color .2s; margin-bottom: 1.25rem;
     }
     input:focus { border-color: #7c6af7; }
 
     button[type="submit"] {
-      width: 100%;
-      background: linear-gradient(135deg, #7c6af7, #5b4fcf);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: .75rem 1.25rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity .2s;
+      width: 100%; background: linear-gradient(135deg, #7c6af7, #5b4fcf);
+      color: #fff; border: none; border-radius: 8px;
+      padding: .75rem 1.25rem; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: opacity .2s;
     }
     button[type="submit"]:hover:not(:disabled) { opacity: .88; }
     button[type="submit"]:disabled { opacity: .5; cursor: not-allowed; }
 
-    /* loader */
     .loader {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: .75rem;
-      padding: 2rem 0;
-      color: #888;
-      font-size: .9rem;
+      display: none; flex-direction: column; align-items: center;
+      gap: .75rem; padding: 2rem 0; color: #888; font-size: .9rem;
     }
     .loader.active { display: flex; }
     .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid #2a2a36;
-      border-top-color: #7c6af7;
-      border-radius: 50%;
+      width: 36px; height: 36px; border: 3px solid #2a2a36;
+      border-top-color: #7c6af7; border-radius: 50%;
       animation: spin .8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* error */
     .error-box {
-      display: none;
-      background: #1e0a0a;
-      border: 1px solid #5a1a1a;
-      border-radius: 8px;
-      padding: 1rem;
-      color: #f87171;
-      font-size: .9rem;
-      margin-top: 1.5rem;
-      white-space: pre-wrap;
+      display: none; background: #1e0a0a; border: 1px solid #5a1a1a;
+      border-radius: 8px; padding: 1rem; color: #f87171;
+      font-size: .9rem; margin-top: 1.5rem; white-space: pre-wrap;
     }
     .error-box.active { display: block; }
 
-    /* results */
-    .results {
-      display: none;
-      margin-top: 2rem;
-      width: 100%;
-      max-width: 680px;
-    }
+    /* ── Results area ── */
+    .results { display: none; margin-top: 2rem; width: 100%; max-width: 720px; }
     .results.active { display: block; }
 
+    /* Tabs */
+    .tabs {
+      display: flex; gap: .25rem; margin-bottom: 1.25rem;
+      border-bottom: 1px solid #2a2a36; padding-bottom: .5rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: none; border: 1px solid transparent;
+      border-radius: 6px 6px 0 0; color: #888;
+      padding: .45rem .9rem; font-size: .85rem; cursor: pointer;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .tab-btn:hover { color: #ccc; }
+    .tab-btn.active {
+      color: #a78bfa; background: #18181f;
+      border-color: #2a2a36; border-bottom-color: #18181f;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Shared card */
     .result-card {
-      background: #18181f;
-      border: 1px solid #2a2a36;
-      border-radius: 12px;
-      padding: 1.75rem;
-      margin-bottom: 1.25rem;
+      background: #18181f; border: 1px solid #2a2a36;
+      border-radius: 12px; padding: 1.75rem; margin-bottom: 1.25rem;
     }
     .result-card h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #a78bfa;
-      margin-bottom: 1rem;
-      line-height: 1.3;
+      font-size: 1.35rem; font-weight: 700; color: #a78bfa;
+      margin-bottom: 1rem; line-height: 1.3;
     }
+    .result-card h3 {
+      font-size: 1rem; font-weight: 600; color: #7c6af7;
+      margin-bottom: .6rem; margin-top: 1.25rem;
+    }
+    .result-card h3:first-child { margin-top: 0; }
+
     .section-label {
-      font-size: .75rem;
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: #7c6af7;
-      margin-bottom: .5rem;
+      font-size: .72rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: #7c6af7; margin-bottom: .5rem;
     }
     .text-body {
-      font-size: .95rem;
-      line-height: 1.75;
-      color: #ccc;
-      white-space: pre-wrap;
+      font-size: .95rem; line-height: 1.75; color: #ccc; white-space: pre-wrap;
     }
     .divider { border: none; border-top: 1px solid #2a2a36; margin: 1.25rem 0; }
+
+    /* Source badges */
+    .meta-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
+    .badge {
+      background: #1e1e2a; border: 1px solid #2a2a36;
+      border-radius: 20px; padding: .2rem .7rem;
+      font-size: .78rem; color: #aaa;
+    }
+    .badge span { color: #e2e2e8; }
+
+    /* Publications table */
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: .75rem; }
+    th {
+      text-align: left; padding: .4rem .6rem;
+      color: #7c6af7; border-bottom: 1px solid #2a2a36; font-weight: 600;
+    }
+    td { padding: .4rem .6rem; color: #ccc; border-bottom: 1px solid #1a1a24; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td a { color: #a78bfa; text-decoration: none; }
+    td a:hover { text-decoration: underline; }
+
+    /* Content snippet */
+    .snippet {
+      background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
+      padding: .75rem 1rem; font-size: .82rem; color: #aaa;
+      line-height: 1.6; white-space: pre-wrap; max-height: 180px;
+      overflow-y: auto; font-family: monospace;
+    }
+
+    /* Prompts */
+    .prompt-block { margin-bottom: 1.25rem; }
+    details { margin-bottom: .5rem; }
+    summary {
+      cursor: pointer; font-size: .85rem; font-weight: 600;
+      color: #a78bfa; padding: .4rem 0; user-select: none;
+      list-style: none; display: flex; align-items: center; gap: .4rem;
+    }
+    summary::before { content: "▶"; font-size: .6rem; transition: transform .2s; }
+    details[open] summary::before { transform: rotate(90deg); }
+    .prompt-text {
+      background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
+      padding: .75rem 1rem; font-size: .8rem; color: #aaa;
+      line-height: 1.6; white-space: pre-wrap; margin-top: .4rem;
+      max-height: 300px; overflow-y: auto; font-family: monospace;
+    }
+    .prompt-label {
+      font-size: .72rem; font-weight: 600; letter-spacing: .07em;
+      text-transform: uppercase; color: #666; margin-bottom: .3rem; margin-top: .75rem;
+    }
+
+    /* JSON data */
+    .json-block {
+      background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
+      padding: .75rem 1rem; font-size: .8rem; color: #aaa;
+      line-height: 1.6; white-space: pre; overflow: auto;
+      max-height: 400px; font-family: monospace;
+    }
+    .json-key { color: #7c6af7; }
+    .json-string { color: #a6e3a1; }
+    .json-number { color: #f9e2af; }
+    .json-bool { color: #cba6f7; }
   </style>
 </head>
 <body>
@@ -155,7 +192,8 @@
   <div class="card">
     <form id="form">
       <label for="url">URL source</label>
-      <input type="url" id="url" name="url" placeholder="https://fr.wikipedia.org/wiki/Intelligence_artificielle" required />
+      <input type="url" id="url" name="url"
+        placeholder="https://fr.wikipedia.org/wiki/Intelligence_artificielle" required />
 
       <label for="author">Nom de l'auteur</label>
       <input type="text" id="author" name="author" placeholder="Tim Berners-Lee" required />
@@ -172,18 +210,142 @@
   </div>
 
   <div class="results" id="results">
-    <div class="result-card">
-      <h2 id="res-title"></h2>
-      <hr class="divider" />
-      <div class="section-label">Texte généré</div>
-      <div class="text-body" id="res-text"></div>
-      <hr class="divider" />
-      <div class="section-label">Notes de style de l'auteur</div>
-      <div class="text-body" id="res-notes"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-result">Résultat</button>
+      <button class="tab-btn" data-tab="tab-sources">Sources</button>
+      <button class="tab-btn" data-tab="tab-prompts">Prompts calculés</button>
+      <button class="tab-btn" data-tab="tab-data">Données intermédiaires</button>
     </div>
-  </div>
+
+    <!-- ── Onglet 1 : Résultat ── -->
+    <div class="tab-panel active" id="tab-result">
+      <div class="result-card">
+        <h2 id="res-title"></h2>
+        <hr class="divider" />
+        <div class="section-label">Texte généré</div>
+        <div class="text-body" id="res-text"></div>
+        <hr class="divider" />
+        <div class="section-label">Notes de style de l'auteur</div>
+        <div class="text-body" id="res-notes"></div>
+      </div>
+    </div>
+
+    <!-- ── Onglet 2 : Sources ── -->
+    <div class="tab-panel" id="tab-sources">
+
+      <!-- Source web -->
+      <div class="result-card">
+        <h3>Page web</h3>
+        <div class="meta-row">
+          <div class="badge">Titre : <span id="src-web-title"></span></div>
+        </div>
+        <div class="meta-row">
+          <div class="badge">URL : <span><a id="src-web-url" href="#" target="_blank" rel="noopener"></a></span></div>
+        </div>
+        <div class="section-label" style="margin-top:.75rem">Extrait du contenu récupéré</div>
+        <div class="snippet" id="src-web-snippet"></div>
+      </div>
+
+      <!-- Source Semantic Scholar -->
+      <div class="result-card">
+        <h3>Semantic Scholar</h3>
+        <div class="meta-row">
+          <div class="badge">Auteur : <span id="src-scholar-name"></span></div>
+          <div class="badge">Publications : <span id="src-scholar-papers"></span></div>
+          <div class="badge">Citations : <span id="src-scholar-citations"></span></div>
+        </div>
+        <table id="src-scholar-table">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Année</th>
+              <th>Revue</th>
+              <th>Citations</th>
+            </tr>
+          </thead>
+          <tbody id="src-scholar-tbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ── Onglet 3 : Prompts calculés ── -->
+    <div class="tab-panel" id="tab-prompts">
+
+      <div class="result-card">
+        <h3>contextAgent</h3>
+        <div class="prompt-block">
+          <details>
+            <summary>Prompt système</summary>
+            <div class="prompt-text" id="prompt-ctx-system"></div>
+          </details>
+          <details open>
+            <summary>Message utilisateur (calculé)</summary>
+            <div class="prompt-text" id="prompt-ctx-user"></div>
+          </details>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <h3>authorAgent</h3>
+        <div class="prompt-block">
+          <details>
+            <summary>Prompt système</summary>
+            <div class="prompt-text" id="prompt-auth-system"></div>
+          </details>
+          <details open>
+            <summary>Message utilisateur (calculé)</summary>
+            <div class="prompt-text" id="prompt-auth-user"></div>
+          </details>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <h3>writerAgent</h3>
+        <div class="prompt-block">
+          <details>
+            <summary>Prompt système</summary>
+            <div class="prompt-text" id="prompt-writer-system"></div>
+          </details>
+          <details open>
+            <summary>Message utilisateur (calculé)</summary>
+            <div class="prompt-text" id="prompt-writer-user"></div>
+          </details>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Onglet 4 : Données intermédiaires ── -->
+    <div class="tab-panel" id="tab-data">
+
+      <div class="result-card">
+        <h3>Contexte sémantique <small style="color:#666;font-weight:400">(sortie contextAgent)</small></h3>
+        <div class="json-block" id="data-context"></div>
+      </div>
+
+      <div class="result-card">
+        <h3>Profil auteur <small style="color:#666;font-weight:400">(sortie authorAgent)</small></h3>
+        <div class="json-block" id="data-author"></div>
+      </div>
+
+    </div>
+
+  </div><!-- /results -->
 
   <script>
+    // ── Tab switching ──────────────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── Loader ────────────────────────────────────────────────────────────────
     const form = document.getElementById('form');
     const submitBtn = document.getElementById('submit-btn');
     const loader = document.getElementById('loader');
@@ -192,10 +354,12 @@
     const results = document.getElementById('results');
 
     const loaderMessages = [
-      'Analyse du contenu…',
-      'Recherche du profil auteur…',
-      'Rédaction en cours…',
-      'Finalisation du texte…',
+      'Récupération de la page web…',
+      'Analyse sémantique du contenu…',
+      'Recherche du profil auteur (Semantic Scholar)…',
+      'Construction du profil bibliométrique…',
+      'Rédaction du texte…',
+      'Finalisation…',
     ];
     let loaderInterval;
 
@@ -208,20 +372,94 @@
         loaderInterval = setInterval(() => {
           i = (i + 1) % loaderMessages.length;
           loaderMsg.textContent = loaderMessages[i];
-        }, 4000);
+        }, 5000);
       } else {
         clearInterval(loaderInterval);
       }
     }
 
+    // ── JSON syntax highlight ─────────────────────────────────────────────────
+    function highlight(obj) {
+      const raw = JSON.stringify(obj, null, 2);
+      return raw
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+          if (/^"/.test(m)) {
+            return /:$/.test(m)
+              ? `<span class="json-key">${m}</span>`
+              : `<span class="json-string">${m}</span>`;
+          }
+          if (/true|false/.test(m)) return `<span class="json-bool">${m}</span>`;
+          if (/null/.test(m)) return `<span class="json-bool">${m}</span>`;
+          return `<span class="json-number">${m}</span>`;
+        });
+    }
+
+    // ── Populate UI ───────────────────────────────────────────────────────────
+    function populate(data) {
+      const { title, text, authorVoiceNotes, trace } = data;
+      const { contextAgent: ctx, authorAgent: auth, writerAgent: writer } = trace;
+
+      // Tab 1 — Résultat
+      document.getElementById('res-title').textContent = title;
+      document.getElementById('res-text').textContent = text;
+      document.getElementById('res-notes').textContent = authorVoiceNotes;
+
+      // Tab 2 — Sources (web)
+      document.getElementById('src-web-title').textContent = ctx.source.title;
+      const urlEl = document.getElementById('src-web-url');
+      urlEl.textContent = ctx.source.url;
+      urlEl.href = ctx.source.url;
+      document.getElementById('src-web-snippet').textContent = ctx.source.contentSnippet;
+
+      // Tab 2 — Sources (scholar)
+      const scholar = auth.source;
+      document.getElementById('src-scholar-name').textContent = scholar.authorName;
+      document.getElementById('src-scholar-papers').textContent = scholar.paperCount;
+      document.getElementById('src-scholar-citations').textContent = scholar.citationCount;
+      const tbody = document.getElementById('src-scholar-tbody');
+      tbody.innerHTML = '';
+      (scholar.publications ?? []).forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title)}</td>
+          <td>${esc(p.year)}</td>
+          <td>${esc(p.journal)}</td>
+          <td>${esc(p.citations)}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      // Tab 3 — Prompts
+      document.getElementById('prompt-ctx-system').textContent   = ctx.prompt.system;
+      document.getElementById('prompt-ctx-user').textContent     = ctx.prompt.user;
+      document.getElementById('prompt-auth-system').textContent  = auth.prompt.system;
+      document.getElementById('prompt-auth-user').textContent    = auth.prompt.user;
+      document.getElementById('prompt-writer-system').textContent = writer.prompt.system;
+      document.getElementById('prompt-writer-user').textContent  = writer.prompt.user;
+
+      // Tab 4 — Données intermédiaires
+      document.getElementById('data-context').innerHTML = highlight(ctx.result);
+      document.getElementById('data-author').innerHTML  = highlight(auth.result);
+    }
+
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    // ── Form submit ───────────────────────────────────────────────────────────
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorBox.classList.remove('active');
       results.classList.remove('active');
 
+      // Reset to first tab
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+      document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === 0));
+
       const url = document.getElementById('url').value.trim();
       const authorName = document.getElementById('author').value.trim();
-
       setLoading(true);
 
       try {
@@ -230,16 +468,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, authorName }),
         });
-
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error ?? `Erreur ${res.status}`);
-        }
-
-        document.getElementById('res-title').textContent = data.title;
-        document.getElementById('res-text').textContent = data.text;
-        document.getElementById('res-notes').textContent = data.authorVoiceNotes;
+        if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
+        populate(data);
         results.classList.add('active');
         results.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } catch (err) {

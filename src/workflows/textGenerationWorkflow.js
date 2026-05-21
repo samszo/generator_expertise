@@ -32,6 +32,22 @@ const GeneratedTextSchema = z.object({
   authorVoiceNotes: z.string(),
 });
 
+const TraceSchema = z.object({
+  contextAgent: z.object({
+    source: z.any(),
+    prompt: z.object({ system: z.string(), user: z.string() }),
+    result: SemanticContextSchema,
+  }),
+  authorAgent: z.object({
+    source: z.any(),
+    prompt: z.object({ system: z.string(), user: z.string() }),
+    result: AuthorProfileSchema,
+  }),
+  writerAgent: z.object({
+    prompt: z.object({ system: z.string(), user: z.string() }),
+  }),
+});
+
 // ── Step 1: contextAgent + authorAgent en parallèle ───────────────────────────
 
 const coordinatorStep = createStep({
@@ -44,14 +60,21 @@ const coordinatorStep = createStep({
   outputSchema: z.object({
     semanticContext: SemanticContextSchema,
     authorProfile: AuthorProfileSchema,
+    contextTrace: z.any(),
+    authorTrace: z.any(),
   }),
   execute: async ({ inputData }) => {
     const { url, authorName } = inputData;
-    const [semanticContext, authorProfile] = await Promise.all([
+    const [contextData, authorData] = await Promise.all([
       contextAgent.generate(url),
       authorAgent.generate(authorName),
     ]);
-    return { semanticContext, authorProfile };
+    return {
+      semanticContext: contextData.result,
+      authorProfile: authorData.result,
+      contextTrace: { source: contextData.source, prompt: contextData.prompt },
+      authorTrace: { source: authorData.source, prompt: authorData.prompt },
+    };
   },
 });
 
@@ -63,10 +86,24 @@ const generateTextStep = createStep({
   inputSchema: z.object({
     semanticContext: SemanticContextSchema,
     authorProfile: AuthorProfileSchema,
+    contextTrace: z.any(),
+    authorTrace: z.any(),
   }),
-  outputSchema: GeneratedTextSchema,
+  outputSchema: z.object({
+    ...GeneratedTextSchema.shape,
+    trace: TraceSchema,
+  }),
   execute: async ({ inputData }) => {
-    return writerAgent.generate(inputData.semanticContext, inputData.authorProfile);
+    const { semanticContext, authorProfile, contextTrace, authorTrace } = inputData;
+    const writerData = await writerAgent.generate(semanticContext, authorProfile);
+    return {
+      ...writerData.result,
+      trace: {
+        contextAgent: { ...contextTrace, result: semanticContext },
+        authorAgent: { ...authorTrace, result: authorProfile },
+        writerAgent: { prompt: writerData.prompt },
+      },
+    };
   },
 });
 
@@ -79,7 +116,10 @@ export const textGenerationWorkflow = createWorkflow({
     url: z.string().url().describe('Source web page URL'),
     authorName: z.string().describe('Name of the scholar whose style to emulate'),
   }),
-  outputSchema: GeneratedTextSchema,
+  outputSchema: z.object({
+    ...GeneratedTextSchema.shape,
+    trace: TraceSchema,
+  }),
 })
   .then(coordinatorStep)
   .then(generateTextStep)

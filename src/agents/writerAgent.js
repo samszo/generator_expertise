@@ -23,11 +23,13 @@ Always respond with valid JSON only, no markdown fences.`;
 export const writerAgent = {
   name: 'writerAgent',
   async generate(semanticContext, authorProfile) {
-    const raw = await callAlbert(
-      INSTRUCTIONS,
-      `Semantic context of the topic:\n${JSON.stringify(semanticContext, null, 2)}\n\nAuthor profile to emulate:\n${JSON.stringify(authorProfile, null, 2)}`
-    );
-    return JSON.parse(cleanJson(raw));
+    const userMessage = `Semantic context of the topic:\n${JSON.stringify(semanticContext, null, 2)}\n\nAuthor profile to emulate:\n${JSON.stringify(authorProfile, null, 2)}`;
+    const raw = await callAlbert(INSTRUCTIONS, userMessage);
+    const result = JSON.parse(cleanJson(raw));
+    return {
+      result,
+      prompt: { system: INSTRUCTIONS, user: userMessage },
+    };
   },
 };
 

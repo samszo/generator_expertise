@@ -18,11 +18,14 @@ export const contextAgent = {
   name: 'contextAgent',
   async generate(url) {
     const { content, title } = await webFetchTool.execute({ url });
-    const raw = await callAlbert(
-      INSTRUCTIONS,
-      `Analyze the semantic context of this web page titled "${title}":\n\n${content}`
-    );
-    return JSON.parse(cleanJson(raw));
+    const userMessage = `Analyze the semantic context of this web page titled "${title}":\n\n${content}`;
+    const raw = await callAlbert(INSTRUCTIONS, userMessage);
+    const result = JSON.parse(cleanJson(raw));
+    return {
+      result,
+      source: { url, title, contentSnippet: content.slice(0, 1500) },
+      prompt: { system: INSTRUCTIONS, user: userMessage },
+    };
   },
 };
 
