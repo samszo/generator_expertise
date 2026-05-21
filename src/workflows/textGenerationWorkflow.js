@@ -32,50 +32,26 @@ const GeneratedTextSchema = z.object({
   authorVoiceNotes: z.string(),
 });
 
-// ── Single step : toutes les opérations dans une même closure ─────────────────
-// (évite le passage de données z.any() entre étapes Mastra)
+// ── Step unique ───────────────────────────────────────────────────────────────
 
 const textGenerationStep = createStep({
   id: 'text-generation',
-  description: 'Runs contextAgent + authorAgent in parallel, then writerAgent; returns result + trace',
+  description: 'Runs contextAgent + authorAgent in parallel, then writerAgent',
   inputSchema: z.object({
     url: z.string().url(),
     authorName: z.string(),
   }),
-  outputSchema: z.object({
-    ...GeneratedTextSchema.shape,
-    trace: z.any(),
-  }),
+  outputSchema: GeneratedTextSchema,
   execute: async ({ inputData }) => {
     const { url, authorName } = inputData;
 
-    // Étape 1 : contextAgent + authorAgent en parallèle
     const [contextData, authorData] = await Promise.all([
       contextAgent.generate(url),
       authorAgent.generate(authorName),
     ]);
 
-    // Étape 2 : writerAgent
     const writerData = await writerAgent.generate(contextData.result, authorData.result);
-
-    return {
-      ...writerData.result,
-      trace: {
-        contextAgent: {
-          source: contextData.source,
-          prompt: contextData.prompt,
-          result: contextData.result,
-        },
-        authorAgent: {
-          source: authorData.source,
-          prompt: authorData.prompt,
-          result: authorData.result,
-        },
-        writerAgent: {
-          prompt: writerData.prompt,
-        },
-      },
-    };
+    return writerData.result;
   },
 });
 
@@ -88,10 +64,7 @@ export const textGenerationWorkflow = createWorkflow({
     url: z.string().url().describe('Source web page URL'),
     authorName: z.string().describe('Name of the scholar whose style to emulate'),
   }),
-  outputSchema: z.object({
-    ...GeneratedTextSchema.shape,
-    trace: z.any(),
-  }),
+  outputSchema: GeneratedTextSchema,
 })
   .then(textGenerationStep)
   .commit();

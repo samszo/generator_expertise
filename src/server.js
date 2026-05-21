@@ -2,15 +2,13 @@ import 'dotenv/config';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
-import { Mastra } from '@mastra/core';
-import { textGenerationWorkflow } from './workflows/textGenerationWorkflow.js';
-
-const mastra = new Mastra({ workflows: { textGenerationWorkflow } });
+import { contextAgent } from './agents/contextAgent.js';
+import { authorAgent } from './agents/authorAgent.js';
+import { writerAgent } from './agents/writerAgent.js';
 
 const app = new Hono();
 
 app.use('/public/*', serveStatic({ root: './' }));
-
 app.get('/', serveStatic({ path: './public/index.html' }));
 
 app.post('/api/generate', async (c) => {
@@ -26,19 +24,33 @@ app.post('/api/generate', async (c) => {
     return c.json({ error: 'Les champs url et authorName sont requis' }, 400);
   }
 
-  const workflow = mastra.getWorkflow('textGenerationWorkflow');
-  const run = await workflow.createRun();
-  const result = await run.start({ inputData: { url, authorName } });
+  // contextAgent et authorAgent tournent en parallèle
+  const [contextData, authorData] = await Promise.all([
+    contextAgent.generate(url),
+    authorAgent.generate(authorName),
+  ]);
 
-  if (result.status === 'success') {
-    return c.json(result.result);
-  }
+  // writerAgent génère le texte final
+  const writerData = await writerAgent.generate(contextData.result, authorData.result);
 
-  const stepErrors = Object.entries(result.steps ?? {})
-    .filter(([, s]) => s.status !== 'success')
-    .map(([id, s]) => ({ step: id, error: s.error }));
-
-  return c.json({ error: 'Workflow échoué', status: result.status, steps: stepErrors }, 500);
+  return c.json({
+    ...writerData.result,
+    trace: {
+      contextAgent: {
+        source: contextData.source,
+        prompt: contextData.prompt,
+        result: contextData.result,
+      },
+      authorAgent: {
+        source: authorData.source,
+        prompt: authorData.prompt,
+        result: authorData.result,
+      },
+      writerAgent: {
+        prompt: writerData.prompt,
+      },
+    },
+  });
 });
 
 const port = Number(process.env.PORT ?? 3000);

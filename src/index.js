@@ -23,12 +23,10 @@ async function main() {
   });
 
   if (result.status === 'success') {
-    const { title, text, authorVoiceNotes, trace } = result.result;
+    const { title, text, authorVoiceNotes } = result.result;
     console.log(`TITLE: ${title}\n`);
     console.log(`TEXT:\n${text}\n`);
     console.log(`AUTHOR VOICE NOTES:\n${authorVoiceNotes}\n`);
-    console.log(`SOURCE (web): ${trace.contextAgent.source.url} — "${trace.contextAgent.source.title}"`);
-    console.log(`SOURCE (scholar): ${trace.authorAgent.source.authorName} — ${trace.authorAgent.source.paperCount} papers, ${trace.authorAgent.source.citationCount} citations\n`);
   } else {
     console.error('Workflow failed:', result.status);
     if (result.steps) {
