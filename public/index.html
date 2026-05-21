@@ -180,6 +180,21 @@
     .json-string { color: #a6e3a1; }
     .json-number { color: #f9e2af; }
     .json-bool { color: #cba6f7; }
+
+    /* Quarto */
+    .quarto-preview {
+      background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
+      padding: .75rem 1rem; font-size: .8rem; color: #aaa;
+      line-height: 1.6; white-space: pre; overflow: auto;
+      max-height: 420px; font-family: monospace; margin-top: .75rem;
+    }
+    .dl-btn {
+      background: #1e1e2a; border: 1px solid #7c6af7; border-radius: 6px;
+      color: #a78bfa; padding: .3rem .8rem; font-size: .8rem;
+      cursor: pointer; transition: background .15s;
+    }
+    .dl-btn:hover { background: #2a2a3e; }
+    code { background: #1e1e2a; padding: .1em .35em; border-radius: 4px; font-size: .85em; }
   </style>
 </head>
 <body>
@@ -216,6 +231,7 @@
       <button class="tab-btn" data-tab="tab-sources">Sources</button>
       <button class="tab-btn" data-tab="tab-prompts">Prompts calculés</button>
       <button class="tab-btn" data-tab="tab-data">Données intermédiaires</button>
+      <button class="tab-btn" data-tab="tab-quarto">Export Quarto</button>
     </div>
 
     <!-- ── Onglet 1 : Résultat ── -->
@@ -332,6 +348,32 @@
 
     </div>
 
+    <!-- ── Onglet 5 : Export Quarto ── -->
+    <div class="tab-panel" id="tab-quarto">
+
+      <div class="result-card">
+        <h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+          <span>Fichier <code>.qmd</code></span>
+          <button class="dl-btn" id="dl-qmd">⬇ Télécharger .qmd</button>
+        </h3>
+        <div class="quarto-preview" id="quarto-qmd"></div>
+      </div>
+
+      <div class="result-card">
+        <h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+          <span>Fichier <code>references.bib</code></span>
+          <button class="dl-btn" id="dl-bib">⬇ Télécharger .bib</button>
+        </h3>
+        <div class="quarto-preview" id="quarto-bib"></div>
+      </div>
+
+      <div class="result-card">
+        <h3>Diagramme Mermaid (aperçu brut)</h3>
+        <div class="quarto-preview" id="quarto-mermaid"></div>
+      </div>
+
+    </div>
+
   </div><!-- /results -->
 
   <script>
@@ -444,6 +486,32 @@
       // Tab 4 — Données intermédiaires
       document.getElementById('data-context').innerHTML = highlight(ctx.result);
       document.getElementById('data-author').innerHTML  = highlight(auth.result);
+
+      // Tab 5 — Export Quarto
+      const { quarto } = data;
+      document.getElementById('quarto-qmd').textContent     = quarto.qmd;
+      document.getElementById('quarto-bib').textContent     = quarto.bib;
+      document.getElementById('quarto-mermaid').textContent = quarto.mermaid;
+
+      // Téléchargements
+      const slug = data.title.slice(0, 40).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      bindDownload('dl-qmd', quarto.qmd,  `${slug}.qmd`,        'text/plain');
+      bindDownload('dl-bib', quarto.bib,  'references.bib',     'text/plain');
+    }
+
+    function bindDownload(btnId, content, filename, mime) {
+      const btn = document.getElementById(btnId);
+      // Remove any previous listener by replacing the node
+      const clone = btn.cloneNode(true);
+      btn.parentNode.replaceChild(clone, btn);
+      clone.addEventListener('click', () => {
+        const blob = new Blob([content], { type: mime });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
     }
 
     function esc(s) {
