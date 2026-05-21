@@ -1,0 +1,21 @@
+{
+  "name": "generateur",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "generate": "node src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.64",
+    "@mastra/core": "^1.35.0",
+    "dotenv": "^17.4.2",
+    "openai": "^6.38.0",
+    "zod": "^3.25.76"
+  }
+}
