@@ -14,7 +14,8 @@ Workflow multi-agents qui génère un texte original sur un sujet extrait d'une 
 6. [Schémas de données](#schémas-de-données)
 7. [Configuration](#configuration)
 8. [Installation et lancement](#installation-et-lancement)
-9. [Dépendances](#dépendances)
+9. [Application cliente web](#application-cliente-web)
+10. [Dépendances](#dépendances)
 
 ---
 
@@ -22,7 +23,9 @@ Workflow multi-agents qui génère un texte original sur un sujet extrait d'une 
 
 ```mermaid
 graph TB
-    User(["👤 Utilisateur\n(url + authorName)"])
+    CLI(["💻 CLI\nnode src/index.js"])
+    Browser(["🌐 Navigateur\nlocalhost:3000"])
+    Server["🖥️ Serveur HTTP\nsrc/server.js\n(Hono)"]
     Mastra["🔧 Mastra\ntextGenerationWorkflow"]
     Step1["⚡ Step : coordinator\n(parallèle)"]
     Step2["⚡ Step : generate-text"]
@@ -34,7 +37,9 @@ graph TB
     Scholar["📚 Semantic Scholar API"]
     Out(["📄 Texte généré\n(titre + texte + notes)"])
 
-    User -->|"url, authorName"| Mastra
+    CLI -->|"url, authorName"| Mastra
+    Browser -->|"POST /api/generate"| Server
+    Server -->|"url, authorName"| Mastra
     Mastra --> Step1
     Step1 -->|"url"| CA
     Step1 -->|"authorName"| AA
@@ -46,6 +51,8 @@ graph TB
     Step2 -->|"context + profile"| WA
     WA -->|"generate text"| Albert
     Step2 --> Out
+    Out -->|"JSON"| Server
+    Server -->|"{ title, text, authorVoiceNotes }"| Browser
 ```
 
 ---
@@ -57,8 +64,12 @@ graph LR
     subgraph root["📁 generateur/"]
         ENV[".env"]
         PKG["package.json"]
+        subgraph public["📁 public/"]
+            HTML["index.html\n(interface web)"]
+        end
         subgraph src["📁 src/"]
-            IDX["index.js"]
+            IDX["index.js\n(CLI)"]
+            SRV["server.js\n(HTTP Hono)"]
             subgraph agents["📁 agents/"]
                 CA2["contextAgent.js"]
                 AA2["authorAgent.js"]
@@ -76,6 +87,8 @@ graph LR
     end
 
     IDX --> WF
+    SRV --> WF
+    SRV -.->|"sert"| HTML
     WF --> CA2 & AA2 & WA2
     CA2 --> AT & WT
     AA2 --> AT & ST
@@ -124,6 +137,8 @@ sequenceDiagram
     Writer-->>WF: { title, text, authorVoiceNotes }
     WF-->>User: résultat affiché dans le terminal
 ```
+
+> Le même workflow est également accessible via le serveur HTTP (voir [Application cliente web](#application-cliente-web)).
 
 ---
 
@@ -370,14 +385,18 @@ La clé API est obtenue sur [albert.api.etalab.gouv.fr](https://albert.api.etala
 ## Installation et lancement
 
 ```bash
-# Installer les dépendances
 npm install
+```
 
-# Lancement avec les valeurs par défaut
-# (Wikipedia/Web sémantique + Tim Berners-Lee)
-node src/index.js
+### Mode CLI
 
-# Lancement avec vos paramètres
+Lance le workflow directement dans le terminal.
+
+```bash
+# Valeurs par défaut (Wikipedia/Web sémantique + Tim Berners-Lee)
+npm start
+
+# Avec vos paramètres
 node src/index.js "<URL>" "<Nom Auteur>"
 
 # Exemples
@@ -402,6 +421,82 @@ AUTHOR VOICE NOTES:
 ...
 ```
 
+### Mode serveur web
+
+Lance le serveur HTTP et l'interface graphique.
+
+```bash
+npm run server
+```
+
+Puis ouvrir **http://localhost:3000** dans un navigateur.
+
+Le port peut être personnalisé via la variable d'environnement `PORT` :
+
+```bash
+PORT=8080 npm run server
+```
+
+---
+
+## Application cliente web
+
+Le serveur (`src/server.js`) expose deux routes :
+
+| Route | Méthode | Description |
+|---|---|---|
+| `/` | GET | Sert `public/index.html` |
+| `/api/generate` | POST | Exécute le workflow et renvoie le JSON |
+
+### Requête `POST /api/generate`
+
+```json
+{
+  "url": "https://fr.wikipedia.org/wiki/Intelligence_artificielle",
+  "authorName": "Yann LeCun"
+}
+```
+
+### Réponse (succès `200`)
+
+```json
+{
+  "title": "...",
+  "text": "...",
+  "authorVoiceNotes": "..."
+}
+```
+
+### Réponse (erreur `500`)
+
+```json
+{
+  "error": "Workflow échoué",
+  "status": "failed",
+  "steps": [{ "step": "coordinator", "error": "..." }]
+}
+```
+
+### Interface web (`public/index.html`)
+
+```mermaid
+sequenceDiagram
+    actor User as Utilisateur (navigateur)
+    participant UI as index.html
+    participant API as POST /api/generate
+    participant WF as Workflow Mastra
+
+    User->>UI: saisit URL + auteur, clique Générer
+    UI->>API: fetch POST { url, authorName }
+    Note over UI: spinner + messages de progression
+    API->>WF: workflow.createRun().start(...)
+    WF-->>API: { title, text, authorVoiceNotes }
+    API-->>UI: JSON 200
+    UI-->>User: affiche titre, texte, notes de style
+```
+
+L'interface ne dépend d'aucune librairie externe — HTML/CSS/JS vanilla uniquement.
+
 ---
 
 ## Dépendances
@@ -414,12 +509,17 @@ graph LR
     AiSDK["@ai-sdk/openai\n(provider Vercel AI SDK)"]
     Zod["zod\nValidation des schémas"]
     Dotenv["dotenv\nVariables d'environnement"]
+    Hono["hono\nServeur HTTP"]
+    HonoNode["@hono/node-server\nAdaptateur Node.js"]
 
     App --> Mastra
     App --> OpenAI
     App --> AiSDK
     App --> Zod
     App --> Dotenv
+    App --> Hono
+    App --> HonoNode
+    HonoNode --> Hono
 ```
 
 | Package | Version | Rôle |
@@ -429,3 +529,5 @@ graph LR
 | `@ai-sdk/openai` | ^3.0 | Provider Vercel AI SDK |
 | `zod` | ^3.25 | Validation des schémas I/O |
 | `dotenv` | ^17.4 | Chargement des variables `.env` |
+| `hono` | ^4.12 | Routeur HTTP léger (serveur web) |
+| `@hono/node-server` | ^1.19 | Adaptateur Node.js pour Hono |
