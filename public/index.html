@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mastra — Générateur de texte</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f0f13;
+      color: #e2e2e8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #7c6af7, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header p { color: #888; margin-top: .4rem; font-size: .95rem; }
+
+    .card {
+      background: #18181f;
+      border: 1px solid #2a2a36;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    label { display: block; font-size: .85rem; color: #aaa; margin-bottom: .35rem; }
+
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      background: #0f0f13;
+      border: 1px solid #2a2a36;
+      border-radius: 8px;
+      color: #e2e2e8;
+      padding: .65rem .9rem;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s;
+      margin-bottom: 1.25rem;
+    }
+    input:focus { border-color: #7c6af7; }
+
+    button[type="submit"] {
+      width: 100%;
+      background: linear-gradient(135deg, #7c6af7, #5b4fcf);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: .75rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    button[type="submit"]:hover:not(:disabled) { opacity: .88; }
+    button[type="submit"]:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* loader */
+    .loader {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: .75rem;
+      padding: 2rem 0;
+      color: #888;
+      font-size: .9rem;
+    }
+    .loader.active { display: flex; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #2a2a36;
+      border-top-color: #7c6af7;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* error */
+    .error-box {
+      display: none;
+      background: #1e0a0a;
+      border: 1px solid #5a1a1a;
+      border-radius: 8px;
+      padding: 1rem;
+      color: #f87171;
+      font-size: .9rem;
+      margin-top: 1.5rem;
+      white-space: pre-wrap;
+    }
+    .error-box.active { display: block; }
+
+    /* results */
+    .results {
+      display: none;
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 680px;
+    }
+    .results.active { display: block; }
+
+    .result-card {
+      background: #18181f;
+      border: 1px solid #2a2a36;
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .result-card h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #a78bfa;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+    .section-label {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #7c6af7;
+      margin-bottom: .5rem;
+    }
+    .text-body {
+      font-size: .95rem;
+      line-height: 1.75;
+      color: #ccc;
+      white-space: pre-wrap;
+    }
+    .divider { border: none; border-top: 1px solid #2a2a36; margin: 1.25rem 0; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Mastra — Générateur de texte</h1>
+    <p>Génère un texte original à partir d'une page web, dans la voix d'un auteur</p>
+  </header>
+
+  <div class="card">
+    <form id="form">
+      <label for="url">URL source</label>
+      <input type="url" id="url" name="url" placeholder="https://fr.wikipedia.org/wiki/Intelligence_artificielle" required />
+
+      <label for="author">Nom de l'auteur</label>
+      <input type="text" id="author" name="author" placeholder="Tim Berners-Lee" required />
+
+      <button type="submit" id="submit-btn">Générer</button>
+    </form>
+
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <span id="loader-msg">Analyse en cours…</span>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="result-card">
+      <h2 id="res-title"></h2>
+      <hr class="divider" />
+      <div class="section-label">Texte généré</div>
+      <div class="text-body" id="res-text"></div>
+      <hr class="divider" />
+      <div class="section-label">Notes de style de l'auteur</div>
+      <div class="text-body" id="res-notes"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const submitBtn = document.getElementById('submit-btn');
+    const loader = document.getElementById('loader');
+    const loaderMsg = document.getElementById('loader-msg');
+    const errorBox = document.getElementById('error-box');
+    const results = document.getElementById('results');
+
+    const loaderMessages = [
+      'Analyse du contenu…',
+      'Recherche du profil auteur…',
+      'Rédaction en cours…',
+      'Finalisation du texte…',
+    ];
+    let loaderInterval;
+
+    function setLoading(active) {
+      submitBtn.disabled = active;
+      loader.classList.toggle('active', active);
+      if (active) {
+        let i = 0;
+        loaderMsg.textContent = loaderMessages[0];
+        loaderInterval = setInterval(() => {
+          i = (i + 1) % loaderMessages.length;
+          loaderMsg.textContent = loaderMessages[i];
+        }, 4000);
+      } else {
+        clearInterval(loaderInterval);
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.classList.remove('active');
+      results.classList.remove('active');
+
+      const url = document.getElementById('url').value.trim();
+      const authorName = document.getElementById('author').value.trim();
+
+      setLoading(true);
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, authorName }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error ?? `Erreur ${res.status}`);
+        }
+
+        document.getElementById('res-title').textContent = data.title;
+        document.getElementById('res-text').textContent = data.text;
+        document.getElementById('res-notes').textContent = data.authorVoiceNotes;
+        results.classList.add('active');
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.add('active');
+      } finally {
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>
