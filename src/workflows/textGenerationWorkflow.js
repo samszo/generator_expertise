@@ -32,76 +32,48 @@ const GeneratedTextSchema = z.object({
   authorVoiceNotes: z.string(),
 });
 
-const TraceSchema = z.object({
-  contextAgent: z.object({
-    source: z.any(),
-    prompt: z.object({ system: z.string(), user: z.string() }),
-    result: SemanticContextSchema,
-  }),
-  authorAgent: z.object({
-    source: z.any(),
-    prompt: z.object({ system: z.string(), user: z.string() }),
-    result: AuthorProfileSchema,
-  }),
-  writerAgent: z.object({
-    prompt: z.object({ system: z.string(), user: z.string() }),
-  }),
-});
+// ── Single step : toutes les opérations dans une même closure ─────────────────
+// (évite le passage de données z.any() entre étapes Mastra)
 
-// ── Step 1: contextAgent + authorAgent en parallèle ───────────────────────────
-
-const coordinatorStep = createStep({
-  id: 'coordinator',
-  description: 'Runs contextAgent and authorAgent in parallel',
+const textGenerationStep = createStep({
+  id: 'text-generation',
+  description: 'Runs contextAgent + authorAgent in parallel, then writerAgent; returns result + trace',
   inputSchema: z.object({
     url: z.string().url(),
     authorName: z.string(),
   }),
   outputSchema: z.object({
-    semanticContext: SemanticContextSchema,
-    authorProfile: AuthorProfileSchema,
-    contextTrace: z.any(),
-    authorTrace: z.any(),
+    ...GeneratedTextSchema.shape,
+    trace: z.any(),
   }),
   execute: async ({ inputData }) => {
     const { url, authorName } = inputData;
+
+    // Étape 1 : contextAgent + authorAgent en parallèle
     const [contextData, authorData] = await Promise.all([
       contextAgent.generate(url),
       authorAgent.generate(authorName),
     ]);
-    return {
-      semanticContext: contextData.result,
-      authorProfile: authorData.result,
-      contextTrace: { source: contextData.source, prompt: contextData.prompt },
-      authorTrace: { source: authorData.source, prompt: authorData.prompt },
-    };
-  },
-});
 
-// ── Step 2: writerAgent génère le texte final ─────────────────────────────────
+    // Étape 2 : writerAgent
+    const writerData = await writerAgent.generate(contextData.result, authorData.result);
 
-const generateTextStep = createStep({
-  id: 'generate-text',
-  description: 'Generates an original text on the topic in the voice of the author',
-  inputSchema: z.object({
-    semanticContext: SemanticContextSchema,
-    authorProfile: AuthorProfileSchema,
-    contextTrace: z.any(),
-    authorTrace: z.any(),
-  }),
-  outputSchema: z.object({
-    ...GeneratedTextSchema.shape,
-    trace: TraceSchema,
-  }),
-  execute: async ({ inputData }) => {
-    const { semanticContext, authorProfile, contextTrace, authorTrace } = inputData;
-    const writerData = await writerAgent.generate(semanticContext, authorProfile);
     return {
       ...writerData.result,
       trace: {
-        contextAgent: { ...contextTrace, result: semanticContext },
-        authorAgent: { ...authorTrace, result: authorProfile },
-        writerAgent: { prompt: writerData.prompt },
+        contextAgent: {
+          source: contextData.source,
+          prompt: contextData.prompt,
+          result: contextData.result,
+        },
+        authorAgent: {
+          source: authorData.source,
+          prompt: authorData.prompt,
+          result: authorData.result,
+        },
+        writerAgent: {
+          prompt: writerData.prompt,
+        },
       },
     };
   },
@@ -118,9 +90,8 @@ export const textGenerationWorkflow = createWorkflow({
   }),
   outputSchema: z.object({
     ...GeneratedTextSchema.shape,
-    trace: TraceSchema,
+    trace: z.any(),
   }),
 })
-  .then(coordinatorStep)
-  .then(generateTextStep)
+  .then(textGenerationStep)
   .commit();

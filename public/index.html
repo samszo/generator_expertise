@@ -398,6 +398,10 @@
     // ── Populate UI ───────────────────────────────────────────────────────────
     function populate(data) {
       const { title, text, authorVoiceNotes, trace } = data;
+      if (!trace) {
+        console.error('trace absent de la réponse', data);
+        throw new Error('La réponse du serveur ne contient pas les données de trace.');
+      }
       const { contextAgent: ctx, authorAgent: auth, writerAgent: writer } = trace;
 
       // Tab 1 — Résultat
