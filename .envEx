@@ -1,3 +1,8 @@
 ALBERT_BASE_URL=https://albert.api.etalab.gouv.fr/v1
 ALBERT_API_KEY=
 ALBERT_MODEL=openai/gpt-oss-120b
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=no
+DB_NAME=scanr

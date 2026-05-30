@@ -26,6 +26,34 @@
     }
     header p { color: #888; margin-top: .4rem; font-size: .95rem; }
 
+    /* ── Stepper ── */
+    .stepper {
+      display: flex; align-items: center; gap: 0;
+      width: 100%; max-width: 720px; margin-bottom: 2rem;
+    }
+    .step {
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+      flex: 1; position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: ''; position: absolute; top: 14px; left: 50%; width: 100%;
+      height: 2px; background: #2a2a36; z-index: 0;
+    }
+    .step.done:not(:last-child)::after { background: #7c6af7; }
+    .step-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700; z-index: 1;
+      background: #2a2a36; color: #666; border: 2px solid #2a2a36;
+      transition: all .3s;
+    }
+    .step.active .step-circle { background: #7c6af7; color: #fff; border-color: #7c6af7; }
+    .step.done .step-circle { background: #5b4fcf; color: #fff; border-color: #5b4fcf; }
+    .step-label { font-size: .72rem; color: #666; text-align: center; transition: color .3s; }
+    .step.active .step-label { color: #a78bfa; }
+    .step.done .step-label { color: #7c6af7; }
+
+    /* ── Cards ── */
     .card {
       background: #18181f; border: 1px solid #2a2a36;
       border-radius: 12px; padding: 2rem;
@@ -43,15 +71,23 @@
     }
     input:focus { border-color: #7c6af7; }
 
-    button[type="submit"] {
+    .btn-primary {
       width: 100%; background: linear-gradient(135deg, #7c6af7, #5b4fcf);
       color: #fff; border: none; border-radius: 8px;
       padding: .75rem 1.25rem; font-size: 1rem; font-weight: 600;
       cursor: pointer; transition: opacity .2s;
     }
-    button[type="submit"]:hover:not(:disabled) { opacity: .88; }
-    button[type="submit"]:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary:hover:not(:disabled) { opacity: .88; }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
+    .btn-secondary {
+      background: #1e1e2a; border: 1px solid #2a2a36; border-radius: 8px;
+      color: #aaa; padding: .55rem 1rem; font-size: .9rem;
+      cursor: pointer; transition: border-color .2s, color .2s;
+    }
+    .btn-secondary:hover { border-color: #7c6af7; color: #a78bfa; }
+
+    /* ── Loader ── */
     .loader {
       display: none; flex-direction: column; align-items: center;
       gap: .75rem; padding: 2rem 0; color: #888; font-size: .9rem;
@@ -64,6 +100,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Error ── */
     .error-box {
       display: none; background: #1e0a0a; border: 1px solid #5a1a1a;
       border-radius: 8px; padding: 1rem; color: #f87171;
@@ -71,11 +108,54 @@
     }
     .error-box.active { display: block; }
 
+    /* ── Selection panel ── */
+    #selection-panel { display: none; width: 100%; max-width: 720px; }
+    #selection-panel.active { display: block; }
+
+    .source-section { margin-bottom: 1.5rem; }
+    .source-section h3 {
+      font-size: .85rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #7c6af7; margin-bottom: .75rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .source-badge {
+      font-size: .7rem; background: #1e1e2a; border: 1px solid #2a2a36;
+      border-radius: 10px; padding: .1rem .5rem; color: #aaa;
+      text-transform: none; letter-spacing: 0; font-weight: 400;
+    }
+    .source-empty { color: #555; font-size: .85rem; font-style: italic; padding: .5rem 0; }
+
+    /* Author / source selectable items */
+    .selectable-item {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
+      padding: .75rem 1rem; margin-bottom: .5rem; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .selectable-item:hover { border-color: #7c6af7; background: #13131a; }
+    .selectable-item.selected { border-color: #7c6af7; background: #13131a; }
+    .selectable-item input[type="checkbox"],
+    .selectable-item input[type="radio"] {
+      width: 16px; height: 16px; margin: 0; flex-shrink: 0;
+      accent-color: #7c6af7; cursor: pointer; margin-top: 2px;
+    }
+    .item-body { flex: 1; min-width: 0; }
+    .item-name { font-weight: 600; font-size: .95rem; color: #e2e2e8; }
+    .item-meta {
+      font-size: .78rem; color: #888; margin-top: .2rem;
+      display: flex; flex-wrap: wrap; gap: .4rem;
+    }
+    .item-meta span { background: #1e1e2a; border-radius: 10px; padding: .1rem .5rem; }
+
+    .selection-actions {
+      display: flex; gap: .75rem; margin-top: 1.5rem; flex-wrap: wrap;
+    }
+    .selection-actions .btn-primary { flex: 1; min-width: 200px; }
+
     /* ── Results area ── */
     .results { display: none; margin-top: 2rem; width: 100%; max-width: 720px; }
     .results.active { display: block; }
 
-    /* Tabs */
     .tabs {
       display: flex; gap: .25rem; margin-bottom: 1.25rem;
       border-bottom: 1px solid #2a2a36; padding-bottom: .5rem;
@@ -96,7 +176,6 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* Shared card */
     .result-card {
       background: #18181f; border: 1px solid #2a2a36;
       border-radius: 12px; padding: 1.75rem; margin-bottom: 1.25rem;
@@ -120,7 +199,6 @@
     }
     .divider { border: none; border-top: 1px solid #2a2a36; margin: 1.25rem 0; }
 
-    /* Source badges */
     .meta-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
     .badge {
       background: #1e1e2a; border: 1px solid #2a2a36;
@@ -129,7 +207,6 @@
     }
     .badge span { color: #e2e2e8; }
 
-    /* Publications table */
     table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: .75rem; }
     th {
       text-align: left; padding: .4rem .6rem;
@@ -140,7 +217,6 @@
     td a { color: #a78bfa; text-decoration: none; }
     td a:hover { text-decoration: underline; }
 
-    /* Content snippet */
     .snippet {
       background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
       padding: .75rem 1rem; font-size: .82rem; color: #aaa;
@@ -148,7 +224,6 @@
       overflow-y: auto; font-family: monospace;
     }
 
-    /* Prompts */
     .prompt-block { margin-bottom: 1.25rem; }
     details { margin-bottom: .5rem; }
     summary {
@@ -164,12 +239,7 @@
       line-height: 1.6; white-space: pre-wrap; margin-top: .4rem;
       max-height: 300px; overflow-y: auto; font-family: monospace;
     }
-    .prompt-label {
-      font-size: .72rem; font-weight: 600; letter-spacing: .07em;
-      text-transform: uppercase; color: #666; margin-bottom: .3rem; margin-top: .75rem;
-    }
 
-    /* JSON data */
     .json-block {
       background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
       padding: .75rem 1rem; font-size: .8rem; color: #aaa;
@@ -181,7 +251,6 @@
     .json-number { color: #f9e2af; }
     .json-bool { color: #cba6f7; }
 
-    /* Quarto */
     .quarto-preview {
       background: #0f0f13; border: 1px solid #2a2a36; border-radius: 8px;
       padding: .75rem 1rem; font-size: .8rem; color: #aaa;
@@ -195,6 +264,8 @@
     }
     .dl-btn:hover { background: #2a2a3e; }
     code { background: #1e1e2a; padding: .1em .35em; border-radius: 4px; font-size: .85em; }
+
+    .back-btn-row { margin-bottom: 1.25rem; }
   </style>
 </head>
 <body>
@@ -204,8 +275,25 @@
     <p>Génère l'expertise originale d'une page web par un auteur</p>
   </header>
 
-  <div class="card">
-    <form id="form">
+  <!-- Stepper -->
+  <div class="stepper" id="stepper">
+    <div class="step active" id="step1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Recherche</div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Sélection</div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Résultat</div>
+    </div>
+  </div>
+
+  <!-- Phase 1 : Formulaire de recherche -->
+  <div class="card" id="search-card">
+    <form id="search-form">
       <label for="url">URL source</label>
       <input type="url" id="url" name="url"
         placeholder="https://fr.wikipedia.org/wiki/Intelligence_artificielle" required />
@@ -213,18 +301,76 @@
       <label for="author">Nom de l'auteur</label>
       <input type="text" id="author" name="author" placeholder="Tim Berners-Lee" required />
 
-      <button type="submit" id="submit-btn">Générer</button>
+      <button type="submit" class="btn-primary" id="search-btn">Rechercher les auteurs</button>
     </form>
 
-    <div class="loader" id="loader">
+    <div class="loader" id="search-loader">
       <div class="spinner"></div>
-      <span id="loader-msg">Analyse en cours…</span>
+      <span>Recherche dans Semantic Scholar et scanR…</span>
     </div>
 
-    <div class="error-box" id="error-box"></div>
+    <div class="error-box" id="search-error"></div>
   </div>
 
+  <!-- Phase 2 : Sélection des auteurs / sources -->
+  <div id="selection-panel">
+    <div class="card">
+      <div class="back-btn-row">
+        <button class="btn-secondary" id="back-btn">← Modifier la recherche</button>
+      </div>
+
+      <!-- Source web -->
+      <div class="source-section">
+        <h3>
+          Source web
+          <span class="source-badge" id="web-url-badge"></span>
+        </h3>
+        <label class="selectable-item selected" id="web-item">
+          <input type="checkbox" id="web-check" checked />
+          <div class="item-body">
+            <div class="item-name" id="web-title-label"></div>
+            <div class="item-meta"><span id="web-url-label"></span></div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Semantic Scholar -->
+      <div class="source-section">
+        <h3>
+          Semantic Scholar
+          <span class="source-badge" id="ss-count-badge"></span>
+        </h3>
+        <div id="ss-list"></div>
+      </div>
+
+      <!-- scanR -->
+      <div class="source-section">
+        <h3>
+          scanR
+          <span class="source-badge" id="scanr-count-badge"></span>
+        </h3>
+        <div id="scanr-list"></div>
+      </div>
+
+      <div class="selection-actions">
+        <button class="btn-primary" id="generate-btn" disabled>Générer l'expertise</button>
+      </div>
+
+      <div class="loader" id="gen-loader">
+        <div class="spinner"></div>
+        <span id="gen-loader-msg">Génération en cours…</span>
+      </div>
+
+      <div class="error-box" id="gen-error"></div>
+    </div>
+  </div>
+
+  <!-- Phase 3 : Résultats -->
   <div class="results" id="results">
+
+    <div class="back-btn-row">
+      <button class="btn-secondary" id="back-to-select-btn">← Retour à la sélection</button>
+    </div>
 
     <div class="tabs">
       <button class="tab-btn active" data-tab="tab-result">Résultat</button>
@@ -234,7 +380,6 @@
       <button class="tab-btn" data-tab="tab-quarto">Export Quarto</button>
     </div>
 
-    <!-- ── Onglet 1 : Résultat ── -->
     <div class="tab-panel active" id="tab-result">
       <div class="result-card">
         <h2 id="res-title"></h2>
@@ -247,10 +392,7 @@
       </div>
     </div>
 
-    <!-- ── Onglet 2 : Sources ── -->
     <div class="tab-panel" id="tab-sources">
-
-      <!-- Source web -->
       <div class="result-card">
         <h3>Page web</h3>
         <div class="meta-row">
@@ -263,94 +405,64 @@
         <div class="snippet" id="src-web-snippet"></div>
       </div>
 
-      <!-- Source Semantic Scholar -->
       <div class="result-card">
-        <h3>Semantic Scholar</h3>
+        <h3>Source auteur</h3>
         <div class="meta-row">
           <div class="badge">Auteur : <span id="src-scholar-name"></span></div>
           <div class="badge">Publications : <span id="src-scholar-papers"></span></div>
           <div class="badge">Citations : <span id="src-scholar-citations"></span></div>
         </div>
-        <table id="src-scholar-table">
+        <table>
           <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Année</th>
-              <th>Revue</th>
-              <th>Citations</th>
-            </tr>
+            <tr><th>Titre</th><th>Année</th><th>Revue</th><th>Citations</th></tr>
           </thead>
           <tbody id="src-scholar-tbody"></tbody>
         </table>
       </div>
-
     </div>
 
-    <!-- ── Onglet 3 : Prompts calculés ── -->
     <div class="tab-panel" id="tab-prompts">
-
       <div class="result-card">
         <h3>contextAgent</h3>
         <div class="prompt-block">
-          <details>
-            <summary>Prompt système</summary>
-            <div class="prompt-text" id="prompt-ctx-system"></div>
-          </details>
-          <details open>
-            <summary>Message utilisateur (calculé)</summary>
-            <div class="prompt-text" id="prompt-ctx-user"></div>
-          </details>
+          <details><summary>Prompt système</summary>
+            <div class="prompt-text" id="prompt-ctx-system"></div></details>
+          <details open><summary>Message utilisateur (calculé)</summary>
+            <div class="prompt-text" id="prompt-ctx-user"></div></details>
         </div>
       </div>
-
       <div class="result-card">
         <h3>authorAgent</h3>
         <div class="prompt-block">
-          <details>
-            <summary>Prompt système</summary>
-            <div class="prompt-text" id="prompt-auth-system"></div>
-          </details>
-          <details open>
-            <summary>Message utilisateur (calculé)</summary>
-            <div class="prompt-text" id="prompt-auth-user"></div>
-          </details>
+          <details><summary>Prompt système</summary>
+            <div class="prompt-text" id="prompt-auth-system"></div></details>
+          <details open><summary>Message utilisateur (calculé)</summary>
+            <div class="prompt-text" id="prompt-auth-user"></div></details>
         </div>
       </div>
-
       <div class="result-card">
         <h3>writerAgent</h3>
         <div class="prompt-block">
-          <details>
-            <summary>Prompt système</summary>
-            <div class="prompt-text" id="prompt-writer-system"></div>
-          </details>
-          <details open>
-            <summary>Message utilisateur (calculé)</summary>
-            <div class="prompt-text" id="prompt-writer-user"></div>
-          </details>
+          <details><summary>Prompt système</summary>
+            <div class="prompt-text" id="prompt-writer-system"></div></details>
+          <details open><summary>Message utilisateur (calculé)</summary>
+            <div class="prompt-text" id="prompt-writer-user"></div></details>
         </div>
       </div>
-
     </div>
 
-    <!-- ── Onglet 4 : Données intermédiaires ── -->
     <div class="tab-panel" id="tab-data">
-
       <div class="result-card">
         <h3>Contexte sémantique <small style="color:#666;font-weight:400">(sortie contextAgent)</small></h3>
         <div class="json-block" id="data-context"></div>
       </div>
-
       <div class="result-card">
         <h3>Profil auteur <small style="color:#666;font-weight:400">(sortie authorAgent)</small></h3>
         <div class="json-block" id="data-author"></div>
       </div>
-
     </div>
 
-    <!-- ── Onglet 5 : Export Quarto ── -->
     <div class="tab-panel" id="tab-quarto">
-
       <div class="result-card">
         <h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
           <span>Fichier <code>.qmd</code></span>
@@ -358,7 +470,6 @@
         </h3>
         <div class="quarto-preview" id="quarto-qmd"></div>
       </div>
-
       <div class="result-card">
         <h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
           <span>Fichier <code>references.bib</code></span>
@@ -366,142 +477,36 @@
         </h3>
         <div class="quarto-preview" id="quarto-bib"></div>
       </div>
-
       <div class="result-card">
         <h3>Diagramme Mermaid (aperçu brut)</h3>
         <div class="quarto-preview" id="quarto-mermaid"></div>
       </div>
-
     </div>
 
   </div><!-- /results -->
 
   <script>
-    // ── Tab switching ──────────────────────────────────────────────────────────
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
-
-    // ── Loader ────────────────────────────────────────────────────────────────
-    const form = document.getElementById('form');
-    const submitBtn = document.getElementById('submit-btn');
-    const loader = document.getElementById('loader');
-    const loaderMsg = document.getElementById('loader-msg');
-    const errorBox = document.getElementById('error-box');
-    const results = document.getElementById('results');
-
-    const loaderMessages = [
-      'Récupération de la page web…',
-      'Analyse sémantique du contenu…',
-      'Recherche du profil auteur (Semantic Scholar)…',
-      'Construction du profil bibliométrique…',
-      'Rédaction du texte…',
-      'Finalisation…',
-    ];
-    let loaderInterval;
-
-    function setLoading(active) {
-      submitBtn.disabled = active;
-      loader.classList.toggle('active', active);
-      if (active) {
-        let i = 0;
-        loaderMsg.textContent = loaderMessages[0];
-        loaderInterval = setInterval(() => {
-          i = (i + 1) % loaderMessages.length;
-          loaderMsg.textContent = loaderMessages[i];
-        }, 5000);
-      } else {
-        clearInterval(loaderInterval);
-      }
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── JSON syntax highlight ─────────────────────────────────────────────────
     function highlight(obj) {
       const raw = JSON.stringify(obj, null, 2);
       return raw
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
-          if (/^"/.test(m)) {
-            return /:$/.test(m)
-              ? `<span class="json-key">${m}</span>`
-              : `<span class="json-string">${m}</span>`;
-          }
+          if (/^"/.test(m)) return /:$/.test(m)
+            ? `<span class="json-key">${m}</span>` : `<span class="json-string">${m}</span>`;
           if (/true|false/.test(m)) return `<span class="json-bool">${m}</span>`;
-          if (/null/.test(m)) return `<span class="json-bool">${m}</span>`;
+          if (/null/.test(m))       return `<span class="json-bool">${m}</span>`;
           return `<span class="json-number">${m}</span>`;
         });
     }
 
-    // ── Populate UI ───────────────────────────────────────────────────────────
-    function populate(data) {
-      const { title, text, authorVoiceNotes, trace } = data;
-      if (!trace) {
-        console.error('trace absent de la réponse', data);
-        throw new Error('La réponse du serveur ne contient pas les données de trace.');
-      }
-      const { contextAgent: ctx, authorAgent: auth, writerAgent: writer } = trace;
-
-      // Tab 1 — Résultat
-      document.getElementById('res-title').textContent = title;
-      document.getElementById('res-text').textContent = text;
-      document.getElementById('res-notes').textContent = authorVoiceNotes;
-
-      // Tab 2 — Sources (web)
-      document.getElementById('src-web-title').textContent = ctx.source.title;
-      const urlEl = document.getElementById('src-web-url');
-      urlEl.textContent = ctx.source.url;
-      urlEl.href = ctx.source.url;
-      document.getElementById('src-web-snippet').textContent = ctx.source.contentSnippet;
-
-      // Tab 2 — Sources (scholar)
-      const scholar = auth.source;
-      document.getElementById('src-scholar-name').textContent = scholar.authorName;
-      document.getElementById('src-scholar-papers').textContent = scholar.paperCount;
-      document.getElementById('src-scholar-citations').textContent = scholar.citationCount;
-      const tbody = document.getElementById('src-scholar-tbody');
-      tbody.innerHTML = '';
-      (scholar.publications ?? []).forEach(p => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title)}</td>
-          <td>${esc(p.year)}</td>
-          <td>${esc(p.journal)}</td>
-          <td>${esc(p.citations)}</td>`;
-        tbody.appendChild(tr);
-      });
-
-      // Tab 3 — Prompts
-      document.getElementById('prompt-ctx-system').textContent   = ctx.prompt.system;
-      document.getElementById('prompt-ctx-user').textContent     = ctx.prompt.user;
-      document.getElementById('prompt-auth-system').textContent  = auth.prompt.system;
-      document.getElementById('prompt-auth-user').textContent    = auth.prompt.user;
-      document.getElementById('prompt-writer-system').textContent = writer.prompt.system;
-      document.getElementById('prompt-writer-user').textContent  = writer.prompt.user;
-
-      // Tab 4 — Données intermédiaires
-      document.getElementById('data-context').innerHTML = highlight(ctx.result);
-      document.getElementById('data-author').innerHTML  = highlight(auth.result);
-
-      // Tab 5 — Export Quarto
-      const { quarto } = data;
-      document.getElementById('quarto-qmd').textContent     = quarto.qmd;
-      document.getElementById('quarto-bib').textContent     = quarto.bib;
-      document.getElementById('quarto-mermaid').textContent = quarto.mermaid;
-
-      // Téléchargements
-      const slug = data.title.slice(0, 40).replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      bindDownload('dl-qmd', quarto.qmd,  `${slug}.qmd`,        'text/plain');
-      bindDownload('dl-bib', quarto.bib,  'references.bib',     'text/plain');
-    }
-
     function bindDownload(btnId, content, filename, mime) {
       const btn = document.getElementById(btnId);
-      // Remove any previous listener by replacing the node
       const clone = btn.cloneNode(true);
       btn.parentNode.replaceChild(clone, btn);
       clone.addEventListener('click', () => {
@@ -514,44 +519,278 @@
       });
     }
 
-    function esc(s) {
-      return String(s ?? '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;');
+    // ── Stepper ───────────────────────────────────────────────────────────────
+    function setStep(n) {
+      [1, 2, 3].forEach(i => {
+        const el = document.getElementById(`step${i}`);
+        el.classList.remove('active', 'done');
+        if (i < n) el.classList.add('done');
+        else if (i === n) el.classList.add('active');
+      });
     }
 
-    // ── Form submit ───────────────────────────────────────────────────────────
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorBox.classList.remove('active');
-      results.classList.remove('active');
+    // ── Phase navigation ──────────────────────────────────────────────────────
+    function showPhase(phase) {
+      document.getElementById('search-card').style.display     = phase === 1 ? '' : 'none';
+      document.getElementById('selection-panel').classList.toggle('active', phase === 2);
+      document.getElementById('results').classList.toggle('active', phase === 3);
+      setStep(phase);
+    }
 
-      // Reset to first tab
-      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-      document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === 0));
+    // ── Tab switching ─────────────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    let searchResults = null;   // raw /api/search response
+    let selectedAuthor = null;  // { source: 'semanticScholar'|'scanr', id, name }
+
+    // ── Phase 1 : Recherche ───────────────────────────────────────────────────
+    const searchForm  = document.getElementById('search-form');
+    const searchBtn   = document.getElementById('search-btn');
+    const searchLoader = document.getElementById('search-loader');
+    const searchError = document.getElementById('search-error');
+
+    searchForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      searchError.classList.remove('active');
+      searchBtn.disabled = true;
+      searchLoader.classList.add('active');
 
       const url = document.getElementById('url').value.trim();
       const authorName = document.getElementById('author').value.trim();
-      setLoading(true);
 
       try {
-        const res = await fetch('/api/generate', {
+        const res = await fetch('/api/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, authorName }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
-        populate(data);
-        results.classList.add('active');
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        searchResults = data;
+        buildSelectionPanel(data, authorName);
+        showPhase(2);
       } catch (err) {
-        errorBox.textContent = err.message;
-        errorBox.classList.add('active');
+        searchError.textContent = err.message;
+        searchError.classList.add('active');
       } finally {
-        setLoading(false);
+        searchBtn.disabled = false;
+        searchLoader.classList.remove('active');
       }
     });
+
+    // ── Phase 2 : Sélection ───────────────────────────────────────────────────
+    document.getElementById('back-btn').addEventListener('click', () => {
+      selectedAuthor = null;
+      showPhase(1);
+    });
+
+    document.getElementById('back-to-select-btn').addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+      document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === 0));
+      showPhase(2);
+    });
+
+    function buildSelectionPanel(data, authorName) {
+      // Web source
+      document.getElementById('web-url-badge').textContent = data.web.url;
+      document.getElementById('web-title-label').textContent = data.web.title || data.web.url;
+      document.getElementById('web-url-label').textContent = data.web.url;
+
+      // Semantic Scholar
+      const ssList = document.getElementById('ss-list');
+      const ssCount = data.semanticScholar?.length ?? 0;
+      document.getElementById('ss-count-badge').textContent = `${ssCount} résultat${ssCount !== 1 ? 's' : ''}`;
+      ssList.innerHTML = '';
+      if (!ssCount) {
+        ssList.innerHTML = `<div class="source-empty">Aucun auteur trouvé pour "${esc(authorName)}"</div>`;
+      } else {
+        data.semanticScholar.forEach(a => {
+          ssList.appendChild(makeAuthorItem('semanticScholar', a.id, a.name, [
+            `${a.paperCount} publications`, `${a.citationCount} citations`
+          ]));
+        });
+      }
+
+      // scanR
+      const scanrList = document.getElementById('scanr-list');
+      const scanrCount = data.scanr?.length ?? 0;
+      document.getElementById('scanr-count-badge').textContent = `${scanrCount} résultat${scanrCount !== 1 ? 's' : ''}`;
+      scanrList.innerHTML = '';
+      if (!scanrCount) {
+        scanrList.innerHTML = `<div class="source-empty">Aucun auteur trouvé pour "${esc(authorName)}"</div>`;
+      } else {
+        data.scanr.forEach(p => {
+          const metas = [];
+          if (p.id) metas.push(p.id);
+          if (p.data?.affiliations?.length) metas.push(p.data.affiliations[0]?.label?.fr || p.data.affiliations[0]?.label?.default || '');
+          scanrList.appendChild(makeAuthorItem('scanr', p.id, p.fullName || p.id, metas));
+        });
+      }
+
+      updateGenerateBtn();
+    }
+
+    function makeAuthorItem(source, id, name, metas) {
+      const label = document.createElement('label');
+      label.className = 'selectable-item';
+      label.dataset.source = source;
+      label.dataset.id = id;
+      label.dataset.name = name;
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'author-select';
+      radio.value = `${source}::${id}`;
+
+      const body = document.createElement('div');
+      body.className = 'item-body';
+      body.innerHTML = `<div class="item-name">${esc(name)}</div>
+        <div class="item-meta">${metas.filter(Boolean).map(m => `<span>${esc(m)}</span>`).join('')}</div>`;
+
+      label.appendChild(radio);
+      label.appendChild(body);
+
+      radio.addEventListener('change', () => {
+        document.querySelectorAll('#ss-list .selectable-item, #scanr-list .selectable-item')
+          .forEach(el => el.classList.remove('selected'));
+        if (radio.checked) {
+          label.classList.add('selected');
+          selectedAuthor = { source, id, name };
+        }
+        updateGenerateBtn();
+      });
+
+      return label;
+    }
+
+    // Web checkbox selection styling
+    const webCheck = document.getElementById('web-check');
+    const webItem  = document.getElementById('web-item');
+    webCheck.addEventListener('change', () => {
+      webItem.classList.toggle('selected', webCheck.checked);
+      updateGenerateBtn();
+    });
+
+    function updateGenerateBtn() {
+      const webOk = document.getElementById('web-check').checked;
+      const authorOk = !!selectedAuthor;
+      document.getElementById('generate-btn').disabled = !(webOk && authorOk);
+    }
+
+    // ── Phase 2 → 3 : Génération ──────────────────────────────────────────────
+    const generateBtn = document.getElementById('generate-btn');
+    const genLoader   = document.getElementById('gen-loader');
+    const genError    = document.getElementById('gen-error');
+    const genLoaderMsg = document.getElementById('gen-loader-msg');
+
+    const genMessages = [
+      'Analyse sémantique de la page…',
+      'Construction du profil auteur…',
+      'Rédaction du texte…',
+      'Génération du fichier Quarto…',
+      'Finalisation…',
+    ];
+    let genInterval;
+
+    generateBtn.addEventListener('click', async () => {
+      genError.classList.remove('active');
+      generateBtn.disabled = true;
+      genLoader.classList.add('active');
+
+      let i = 0;
+      genLoaderMsg.textContent = genMessages[0];
+      genInterval = setInterval(() => {
+        i = (i + 1) % genMessages.length;
+        genLoaderMsg.textContent = genMessages[i];
+      }, 4000);
+
+      const url = document.getElementById('url').value.trim();
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url,
+            authorName: selectedAuthor.name,
+            authorSource: selectedAuthor.source,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
+        populateResults(data);
+        showPhase(3);
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        genError.textContent = err.message;
+        genError.classList.add('active');
+        generateBtn.disabled = false;
+      } finally {
+        clearInterval(genInterval);
+        genLoader.classList.remove('active');
+      }
+    });
+
+    // ── Populate results ──────────────────────────────────────────────────────
+    function populateResults(data) {
+      const { title, text, authorVoiceNotes, trace } = data;
+      if (!trace) throw new Error('La réponse du serveur ne contient pas les données de trace.');
+      const { contextAgent: ctx, authorAgent: auth, writerAgent: writer } = trace;
+
+      // Tab 1
+      document.getElementById('res-title').textContent = title;
+      document.getElementById('res-text').textContent  = text;
+      document.getElementById('res-notes').textContent = authorVoiceNotes;
+
+      // Tab 2 — Sources
+      document.getElementById('src-web-title').textContent = ctx.source.title;
+      const urlEl = document.getElementById('src-web-url');
+      urlEl.textContent = ctx.source.url; urlEl.href = ctx.source.url;
+      document.getElementById('src-web-snippet').textContent = ctx.source.contentSnippet;
+
+      const scholar = auth.source;
+      document.getElementById('src-scholar-name').textContent      = scholar.authorName ?? auth.result?.fullName ?? selectedAuthor?.name ?? '';
+      document.getElementById('src-scholar-papers').textContent    = scholar.paperCount ?? '—';
+      document.getElementById('src-scholar-citations').textContent = scholar.citationCount ?? '—';
+      const tbody = document.getElementById('src-scholar-tbody');
+      tbody.innerHTML = '';
+      (scholar.publications ?? []).forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title)}</td>
+          <td>${esc(p.year)}</td><td>${esc(p.journal)}</td><td>${esc(p.citations)}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      // Tab 3 — Prompts
+      document.getElementById('prompt-ctx-system').textContent    = ctx.prompt.system;
+      document.getElementById('prompt-ctx-user').textContent      = ctx.prompt.user;
+      document.getElementById('prompt-auth-system').textContent   = auth.prompt.system;
+      document.getElementById('prompt-auth-user').textContent     = auth.prompt.user;
+      document.getElementById('prompt-writer-system').textContent = writer.prompt.system;
+      document.getElementById('prompt-writer-user').textContent   = writer.prompt.user;
+
+      // Tab 4 — Data
+      document.getElementById('data-context').innerHTML = highlight(ctx.result);
+      document.getElementById('data-author').innerHTML  = highlight(auth.result);
+
+      // Tab 5 — Quarto
+      const { quarto } = data;
+      document.getElementById('quarto-qmd').textContent     = quarto.qmd;
+      document.getElementById('quarto-bib').textContent     = quarto.bib;
+      document.getElementById('quarto-mermaid').textContent = quarto.mermaid;
+
+      const slug = title.slice(0, 40).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      bindDownload('dl-qmd', quarto.qmd, `${slug}.qmd`,   'text/plain');
+      bindDownload('dl-bib', quarto.bib, 'references.bib', 'text/plain');
+    }
   </script>
 </body>
 </html>
