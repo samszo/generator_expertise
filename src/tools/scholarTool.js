@@ -3,6 +3,28 @@ import { z } from 'zod';
 
 const SS_BASE = 'https://api.semanticscholar.org/graph/v1';
 
+/** Fetch with automatic retry on 429 / 5xx (exponential backoff). */
+async function fetchWithRetry(url, options = {}, { retries = 4, baseDelayMs = 2000 } = {}) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res;
+
+    const isRetryable = res.status === 429 || res.status >= 500;
+    if (!isRetryable || attempt === retries) {
+      throw new Error(`Semantic Scholar request failed: ${res.status} ${res.statusText}`);
+    }
+
+    // Honour Retry-After header when present, otherwise exponential backoff
+    const retryAfter = res.headers.get('Retry-After');
+    const delayMs = retryAfter
+      ? Number(retryAfter) * 1000
+      : baseDelayMs * 2 ** attempt + Math.random() * 500;
+
+    console.warn(`[scholarTool] HTTP ${res.status} — retry ${attempt + 1}/${retries} in ${Math.round(delayMs)}ms`);
+    await new Promise(r => setTimeout(r, delayMs));
+  }
+}
+
 export const scholarTool = createTool({
   id: 'semantic-scholar-search',
   description: 'Searches Semantic Scholar for publications by a given author name and returns their profile and top papers',
@@ -28,10 +50,9 @@ export const scholarTool = createTool({
   execute: async ({ author, maxResults }) => {
 
     // 1. Find the best matching author
-    const searchRes = await fetch(
+    const searchRes = await fetchWithRetry(
       `${SS_BASE}/author/search?query=${encodeURIComponent(author)}&fields=name,paperCount,citationCount&limit=1`
     );
-    if (!searchRes.ok) throw new Error(`Semantic Scholar author search failed: ${searchRes.status}`);
     const searchData = await searchRes.json();
 
     if (!searchData.data?.length) {
@@ -41,10 +62,9 @@ export const scholarTool = createTool({
     const { authorId, name: authorName, paperCount, citationCount } = searchData.data[0];
 
     // 2. Fetch their top papers sorted by citation count
-    const papersRes = await fetch(
+    const papersRes = await fetchWithRetry(
       `${SS_BASE}/author/${authorId}/papers?fields=title,year,venue,citationCount,externalIds&limit=${maxResults}&sort=citationCount`
     );
-    if (!papersRes.ok) throw new Error(`Semantic Scholar papers fetch failed: ${papersRes.status}`);
     const papersData = await papersRes.json();
 
     const publications = (papersData.data ?? []).map(p => ({
