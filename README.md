@@ -423,6 +423,22 @@ AUTHOR VOICE NOTES:
 
 ### Mode serveur web
 
+Vérifie si le serveur est lancé
+
+MAC
+```bash
+lsof -Pi :3000
+```
+LINUX
+```bash
+netstat -nlp | grep :3000
+```
+
+Stop le serveur par son id process
+```bash
+$ kill -9 1073
+```
+
 Lance le serveur HTTP et l'interface graphique.
 
 ```bash

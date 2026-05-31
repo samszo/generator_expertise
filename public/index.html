@@ -630,7 +630,7 @@
         data.scanr.forEach(p => {
           const metas = [];
           if (p.id) metas.push(p.id);
-          if (p.data?.affiliations?.length) metas.push(p.data.affiliations[0]?.label?.fr || p.data.affiliations[0]?.label?.default || '');
+          if (p.data?.affiliations?.length) metas.push(p.data.affiliations[0]?.structure.label?.fr || p.data.affiliations[0]?.structure.label?.default || '');
           scanrList.appendChild(makeAuthorItem('scanr', p.id, p.fullName || p.id, metas));
         });
       }
