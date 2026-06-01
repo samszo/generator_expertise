@@ -363,6 +363,20 @@
         <div id="scanr-list"></div>
       </div>
 
+      <!-- Enrichissement Zotero -->
+      <div class="source-section" style="margin-top:1rem">
+        <h3>Options</h3>
+        <label class="selectable-item" id="zotero-item" style="cursor:pointer">
+          <input type="checkbox" id="zotero-check" />
+          <div class="item-body">
+            <div class="item-name">Enrichir avec Zotero</div>
+            <div class="item-meta">
+              <span>Analyse les tags et notes de la bibliographie Zotero liée à cet auteur</span>
+            </div>
+          </div>
+        </label>
+      </div>
+
       <div class="selection-actions">
         <button class="btn-primary" id="generate-btn" disabled>Générer l'expertise</button>
       </div>
@@ -470,6 +484,10 @@
       <div class="result-card">
         <h3>Profil auteur <small style="color:#666;font-weight:400">(sortie authorAgent)</small></h3>
         <div class="json-block" id="data-author"></div>
+      </div>
+      <div class="result-card" id="data-zotero-card" style="display:none">
+        <h3>Enrichissement Zotero <small style="color:#666;font-weight:400">(sortie zoteroEnrichAgent)</small></h3>
+        <div class="json-block" id="data-zotero"></div>
       </div>
     </div>
 
@@ -709,6 +727,7 @@
     const genMessages = [
       'Analyse sémantique de la page…',
       'Construction du profil auteur…',
+      'Enrichissement Zotero…',
       'Rédaction du texte…',
       'Génération du fichier Quarto…',
       'Finalisation…',
@@ -728,6 +747,7 @@
       }, 4000);
 
       const url = document.getElementById('url').value.trim();
+      const enrichWithZotero = document.getElementById('zotero-check').checked;
       try {
         const res = await fetch('/api/generate', {
           method: 'POST',
@@ -736,6 +756,7 @@
             url,
             authorName: selectedAuthor.name,
             authorSource: selectedAuthor.source,
+            enrichWithZotero,
           }),
         });
         const data = await res.json();
@@ -795,6 +816,15 @@
       // Tab 4 — Data
       document.getElementById('data-context').innerHTML = highlight(ctx.result);
       document.getElementById('data-author').innerHTML  = highlight(auth.result);
+
+      const zoteroCard = document.getElementById('data-zotero-card');
+      const zoteroTrace = trace.zoteroEnrichAgent;
+      if (zoteroTrace) {
+        document.getElementById('data-zotero').innerHTML = highlight(zoteroTrace.result);
+        zoteroCard.style.display = '';
+      } else {
+        zoteroCard.style.display = 'none';
+      }
 
       // Tab 5 — Quarto
       const { quarto } = data;

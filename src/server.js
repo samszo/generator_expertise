@@ -7,9 +7,11 @@ import { authorAgent } from './agents/authorAgent.js';
 import { scanrPersonAgent } from './agents/scanrPersonAgent.js';
 import { writerAgent } from './agents/writerAgent.js';
 import { quartoAgent } from './agents/quartoAgent.js';
+import { zoteroEnrichAgent } from './agents/zoteroEnrichAgent.js';
 import { scholarTool } from './tools/scholarTool.js';
 import { scanrPersonTool } from './tools/scanrPersonTool.js';
 import { webFetchTool } from './tools/webFetchTool.js';
+import { zoteroTool } from './tools/zoteroTool.js';
 
 const app = new Hono();
 
@@ -49,6 +51,23 @@ app.post('/api/search', async (c) => {
   });
 });
 
+// ── Enrichissement Zotero (standalone) ───────────────────────────────────────
+app.post('/api/zotero-enrich', async (c) => {
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: 'Invalid JSON body' }, 400); }
+
+  const { authorName, authorProfile, searchMode, maxItems } = body;
+  if (!authorName) return c.json({ error: 'Le champ authorName est requis' }, 400);
+
+  const data = await zoteroEnrichAgent.generate(
+    authorProfile ?? {},
+    authorName,
+    { searchMode: searchMode ?? 'both', maxItems: maxItems ?? 50 }
+  );
+
+  return c.json(data);
+});
+
 // ── Génération d'expertise ────────────────────────────────────────────────────
 app.post('/api/generate', async (c) => {
   let body;
@@ -58,7 +77,7 @@ app.post('/api/generate', async (c) => {
     return c.json({ error: 'Invalid JSON body' }, 400);
   }
 
-  const { url, authorName, authorSource } = body;
+  const { url, authorName, authorSource, enrichWithZotero } = body;
   if (!url || !authorName) {
     return c.json({ error: 'Les champs url et authorName sont requis' }, 400);
   }
@@ -70,10 +89,16 @@ app.post('/api/generate', async (c) => {
     pickAuthorAgent.generate(authorName),
   ]);
 
-  // Étape 2 : writerAgent + quartoAgent (mermaid + bibtex) en parallèle
-  // writerAgent génère le texte ; quartoAgent a besoin du texte pour le mermaid
-  // → on lance writerAgent d'abord, puis quartoAgent en parallèle sur ses deux sous-tâches
-  const writerData = await writerAgent.generate(contextData.result, authorData.result);
+  // Étape 1b (optionnel) : enrichissement Zotero du profil auteur
+  let zoteroData = null;
+  let finalAuthorProfile = authorData.result;
+  if (enrichWithZotero) {
+    zoteroData = await zoteroEnrichAgent.generate(authorData.result, authorName);
+    finalAuthorProfile = zoteroData.result ?? authorData.result;
+  }
+
+  // Étape 2 : writerAgent génère le texte avec le profil final (éventuellement enrichi)
+  const writerData = await writerAgent.generate(contextData.result, finalAuthorProfile);
 
   const quartoData = await quartoAgent.generate({
     title: writerData.result.title,
@@ -99,6 +124,14 @@ app.post('/api/generate', async (c) => {
         prompt: authorData.prompt,
         result: authorData.result,
       },
+      ...(zoteroData ? {
+        zoteroEnrichAgent: {
+          source: zoteroData.source,
+          prompt: zoteroData.prompt,
+          result: zoteroData.result,
+          warning: zoteroData.warning ?? null,
+        },
+      } : {}),
       writerAgent: {
         prompt: writerData.prompt,
       },
