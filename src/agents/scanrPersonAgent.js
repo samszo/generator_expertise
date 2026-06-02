@@ -12,7 +12,9 @@ Your output must be a JSON object with the following fields:
 - "publicationCount": estimated total number of publications (integer or null if unknown)
 - "awards": array of awards or distinctions (empty array if none)
 - "websites": array of known web profile URLs (ORCID, HAL, IdRef, personal page…)
-- "summary": a short paragraph (3–5 sentences) describing the author's academic profile and contributions
+- "summary": a short paragraph (3–5 sentences) describing the author's academic profile and contributions citing references via their BibTeX keys
+- "notablePublications": array of their top 10 publications as { "title": "...", "year": "...", "BibTeX"="..." }
+- "academicVoice": a short paragraph describing their intellectual personality and voice citing references via their BibTeX keys
 
 Always respond with valid JSON only, no markdown fences.`;
 
