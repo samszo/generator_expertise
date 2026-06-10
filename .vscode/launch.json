@@ -4,6 +4,12 @@
     // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [        
+    {
+        "command": "npm run server",
+        "name": "Run generator_expertise",
+        "request": "launch",
+        "type": "node-terminal"
+    },
         {
             "type": "node",
             "request": "launch",
