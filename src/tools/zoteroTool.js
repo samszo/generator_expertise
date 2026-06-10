@@ -1,7 +1,8 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 
-const ZOTERO_BASE = 'https://api.zotero.org';
+//const ZOTERO_BASE = 'https://api.zotero.org';
+const ZOTERO_BASE = 'http://127.0.0.1:23119/api';
 
 /**
  * Build Zotero API headers (API key optional for public libraries).
